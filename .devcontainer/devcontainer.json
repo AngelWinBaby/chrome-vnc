@@ -1,6 +1,11 @@
 {
   "name": "Chrome Remote Desktop",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "postCreateCommand": "bash /workspace/setup.sh && bash /workspace/start.sh",
+  "forwardPorts": [6080, 22],
+  "portsAttributes": {
+    "6080": { "label": "noVNC" },
+    "22": { "label": "SSH" }
+  },
+  "postCreateCommand": "bash /workspace/setup.sh && nohup bash /workspace/start.sh &",
   "customizations": { "vscode": { "extensions": [] } }
 }
