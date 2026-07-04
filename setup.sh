@@ -1,44 +1,28 @@
 #!/bin/bash
 set -e
+exec > /tmp/setup.log 2>&1
 
-echo "=== Setting up Chrome Remote Desktop ==="
+echo "=== Setup starting at $(date) ==="
 
-# 1. Install Chrome
+# Install Chrome
 echo ">>> Installing Google Chrome..."
-wget -q -O chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-sudo apt-get update -qq
-sudo apt-get install -y -qq ./chrome.deb 2>/dev/null || {
-  # Fallback: install deps then chrome
-  sudo apt-get install -y -qq wget curl gnupg
-  wget -q -O- https://dl.google.com/linux/linux_signing_key.pub | sudo gpg --dearmor -o /usr/share/keyrings/google.gpg
-  echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-  sudo apt-get update -qq
-  sudo apt-get install -y -qq google-chrome-stable
-}
-rm -f chrome.deb
-echo ">>> Chrome installed: $(google-chrome --version)"
+apt-get update -qq
+apt-get install -y -qq wget curl gnupg ca-certificates
+wget -q -O- https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google.gpg
+echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list
+apt-get update -qq
+apt-get install -y -qq google-chrome-stable 2>&1 | tail -3
+echo "Chrome: $(google-chrome --version 2>&1)"
 
-# 2. Install VNC + noVNC + Window Manager
-echo ">>> Installing VNC and noVNC..."
-sudo apt-get install -y -qq \
-  xvfb \
-  x11vnc \
-  fluxbox \
-  novnc \
-  net-tools \
-  x11-utils
+# Install VNC + noVNC
+echo ">>> Installing VNC..."
+apt-get install -y -qq xvfb x11vnc fluxbox 2>&1 | tail -3
 
-# 3. Install noVNC if not already (the package might be different)
-if ! command -v /usr/share/novnc/utils/novnc_proxy &> /dev/null; then
-  echo ">>> Installing noVNC from source..."
-  git clone --depth=1 https://github.com/novnc/noVNC.git /opt/noVNC
-  git clone --depth=1 https://github.com/novnc/websockify.git /opt/noVNC/utils/websockify
-fi
+# Install noVNC from source
+echo ">>> Installing noVNC..."
+apt-get install -y -qq python3 python3-websockify git 2>&1 | tail -3
+cd /opt
+git clone --depth=1 https://github.com/novnc/noVNC.git 2>/dev/null || echo "noVNC already exists"
+git clone --depth=1 https://github.com/novnc/websockify.git /opt/noVNC/utils/websockify 2>/dev/null || echo "websockify exists"
 
-# 4. Create VNC password (no password - accessible via forwarded port only)
-mkdir -p ~/.vnc
-x11vnc -storepasswd "" ~/.vnc/passwd 2>/dev/null || true
-
-echo ""
-echo "✅ Setup complete!"
-echo "Run 'bash /workspace/start.sh' to start."
+echo ">>> Setup complete at $(date)"

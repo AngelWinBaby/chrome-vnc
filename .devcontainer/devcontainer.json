@@ -5,11 +5,10 @@
   "portsAttributes": {
     "6080": {
       "label": "Chrome Remote Desktop",
-      "onAutoForward": "openPreview"
+      "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "bash /workspace/setup.sh",
-  "postStartCommand": "bash /workspace/start.sh",
+  "postCreateCommand": "bash /workspace/setup.sh && bash /workspace/start.sh",
   "customizations": {
     "vscode": {
       "extensions": []
