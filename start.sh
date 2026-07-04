@@ -31,10 +31,23 @@ sleep 2
 
 echo "=== Service status ==="
 ss -tlnp | grep -E '5900|6080|22'
-# cloudflared tunnel to VPS
+# cloudflared tunnel to VPS, save URL to file
 echo ">>> Starting cloudflared tunnel..."
-cloudflared tunnel --url http://localhost:6080 --loglevel info &
-sleep 3
+nohup bash -c '
+  cloudflared tunnel --url http://localhost:6080 --loglevel info 2>&1 | \
+  while IFS= read -r line; do
+    echo "$line"
+    # Extract trycloudflare URL
+    url=$(echo "$line" | grep -oP "https://[a-z0-9-]+\.trycloudflare\.com" | head -1)
+    if [ -n "$url" ]; then
+      echo "$url" > /workspace/tunnel_url.txt
+      echo "TUNNEL URL: $url"
+    fi
+  done
+' &
+sleep 4
+echo "cloudflared tunnel starting..."
+cat /workspace/tunnel_url.txt 2>/dev/null || echo "waiting for URL..."
 
 echo "=== SSH password: root (user: root) ==="
 echo "=== VPS: ssh -L 16080:localhost:6080 root@CODESPACE_HOST -p CODESPACE_PORT ==="
