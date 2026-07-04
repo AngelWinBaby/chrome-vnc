@@ -34,14 +34,18 @@ ss -tlnp | grep -E '5900|6080|22'
 # cloudflared tunnel - prefer named tunnel, fallback to trycloudflare
 echo ">>> Starting cloudflared tunnel..."
 
-# Try named tunnel first
-NAMED_CONFIG=/home/vscode/.cloudflared/vnc-config.yml
+# Try named tunnel first (check both locations)
+NAMED_CONFIG=/etc/cloudflared/vnc-config.yml
 NAMED_LOG=/tmp/cloudflared-named.log
 
 if [ -f "$NAMED_CONFIG" ]; then
     echo "Starting named tunnel (vnc.jimmyelsa.com)..."
     nohup cloudflared tunnel --config "$NAMED_CONFIG" run > "$NAMED_LOG" 2>&1 &
-    echo "Named tunnel started (check /tmp/cloudflared-named.log)"
+    echo "Named tunnel started"
+elif [ -f /home/vscode/.cloudflared/vnc-config.yml ]; then
+    echo "Starting named tunnel from user home..."
+    nohup cloudflared tunnel --config /home/vscode/.cloudflared/vnc-config.yml run > "$NAMED_LOG" 2>&1 &
+    echo "Named tunnel started"
 fi
 
 # Also start trycloudflare as fallback with URL capture
