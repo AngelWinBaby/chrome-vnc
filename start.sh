@@ -31,5 +31,10 @@ sleep 2
 
 echo "=== Service status ==="
 ss -tlnp | grep -E '5900|6080|22'
+# cloudflared tunnel to VPS
+echo ">>> Starting cloudflared tunnel..."
+cloudflared tunnel --url http://localhost:6080 --loglevel info &
+sleep 3
+
 echo "=== SSH password: root (user: root) ==="
 echo "=== VPS: ssh -L 16080:localhost:6080 root@CODESPACE_HOST -p CODESPACE_PORT ==="

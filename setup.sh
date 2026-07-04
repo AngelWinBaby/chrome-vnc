@@ -27,4 +27,9 @@ apt-get install -y -qq python3 python3-websockify git 2>&1 | tail -1
 cd /opt && git clone --depth=1 https://github.com/novnc/noVNC.git 2>/dev/null || echo "exists"
 cd /opt/noVNC/utils && git clone --depth=1 https://github.com/novnc/websockify.git 2>/dev/null || echo "exists"
 
+# cloudflared
+wget -q https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+dpkg -i cloudflared-linux-amd64.deb 2>/dev/null || { apt-get install -y -qq -f; dpkg -i cloudflared-linux-amd64.deb; }
+echo "cloudflared: $(cloudflared --version)"
+
 echo "Setup done"
