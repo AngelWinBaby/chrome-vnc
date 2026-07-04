@@ -1,17 +1,6 @@
 {
   "name": "Chrome Remote Desktop",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "forwardPorts": [6080],
-  "portsAttributes": {
-    "6080": {
-      "label": "Chrome Remote Desktop",
-      "onAutoForward": "notify"
-    }
-  },
   "postCreateCommand": "bash /workspace/setup.sh && bash /workspace/start.sh",
-  "customizations": {
-    "vscode": {
-      "extensions": []
-    }
-  }
+  "customizations": { "vscode": { "extensions": [] } }
 }
