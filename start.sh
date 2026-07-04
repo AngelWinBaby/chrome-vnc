@@ -31,8 +31,20 @@ sleep 2
 
 echo "=== Service status ==="
 ss -tlnp | grep -E '5900|6080|22'
-# cloudflared tunnel to VPS, save URL to file
+# cloudflared tunnel - prefer named tunnel, fallback to trycloudflare
 echo ">>> Starting cloudflared tunnel..."
+
+# Try named tunnel first
+NAMED_CONFIG=/home/vscode/.cloudflared/vnc-config.yml
+NAMED_LOG=/tmp/cloudflared-named.log
+
+if [ -f "$NAMED_CONFIG" ]; then
+    echo "Starting named tunnel (vnc.jimmyelsa.com)..."
+    nohup cloudflared tunnel --config "$NAMED_CONFIG" run > "$NAMED_LOG" 2>&1 &
+    echo "Named tunnel started (check /tmp/cloudflared-named.log)"
+fi
+
+# Also start trycloudflare as fallback with URL capture
 nohup bash -c '
   cloudflared tunnel --url http://localhost:6080 --loglevel info 2>&1 | \
   while IFS= read -r line; do
@@ -45,8 +57,8 @@ nohup bash -c '
     fi
   done
 ' &
-sleep 4
-echo "cloudflared tunnel starting..."
+sleep 5
+echo "Tunnel starting..."
 cat /workspaces/chrome-vnc/tunnel_url.txt 2>/dev/null || echo "waiting for URL..."
 
 echo "=== SSH password: root (user: root) ==="
