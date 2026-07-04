@@ -40,14 +40,14 @@ nohup bash -c '
     # Extract trycloudflare URL
     url=$(echo "$line" | grep -oP "https://[a-z0-9-]+\.trycloudflare\.com" | head -1)
     if [ -n "$url" ]; then
-      echo "$url" > /workspace/tunnel_url.txt
+      echo "$url" > /workspaces/chrome-vnc/tunnel_url.txt
       echo "TUNNEL URL: $url"
     fi
   done
 ' &
 sleep 4
 echo "cloudflared tunnel starting..."
-cat /workspace/tunnel_url.txt 2>/dev/null || echo "waiting for URL..."
+cat /workspaces/chrome-vnc/tunnel_url.txt 2>/dev/null || echo "waiting for URL..."
 
 echo "=== SSH password: root (user: root) ==="
 echo "=== VPS: ssh -L 16080:localhost:6080 root@CODESPACE_HOST -p CODESPACE_PORT ==="

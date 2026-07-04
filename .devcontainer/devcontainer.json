@@ -8,6 +8,6 @@
   "features": {
     "ghcr.io/devcontainers/features/sshd:1": { "version": "latest" }
   },
-  "postCreateCommand": "bash /workspace/setup.sh && nohup bash /workspace/start.sh &",
+  "postCreateCommand": "cd /workspaces/chrome-vnc && bash setup.sh && nohup bash start.sh &",
   "customizations": { "vscode": { "extensions": [] } }
 }
